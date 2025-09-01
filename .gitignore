@@ -1,0 +1,48 @@
+# Terraform state and variables
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+.terraform/
+.terraform.lock.hcl
+
+node_modules/*
+
+# Environment files
+.env
+.env.*
+
+# Secrets and credentials
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+*.json
+secrets.*
+server.cert
+credentials.*
+
+# Log files
+*.log
+*.log.*
+
+# IDE/editor configs (optional but useful)
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Backup and temp files
+*.bak
+*.tmp
+*.old
+
+
+# But keep package.json
+!package.json
+
