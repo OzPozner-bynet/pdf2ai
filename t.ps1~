@@ -1,7 +1,7 @@
 # t.ps1 — AWS Bedrock Claude 3.5 Sonnet Test Script using .env
 
 # Step 1: Load .env file
-Write-Host "Loading .env file..."
+Write-Host "`n📂 Loading .env file..."
 $envPath = ".env"
 if (-not (Test-Path $envPath)) {
     Write-Host "❌ .env file not found at $envPath"
