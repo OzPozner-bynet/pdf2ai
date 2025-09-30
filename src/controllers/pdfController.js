@@ -3,6 +3,27 @@ const fs = require("fs").promises;
 const pdfPoppler = require("pdf-poppler");
 const { analyzeImageWithBedrock } = require("../services/bedrockService");
 
+
+
+function getCurrentFormattedTime() {
+  const now = new Date();
+
+  // Get date components
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+  const year = String(now.getFullYear()).slice(-2); // Get last two digits of the year
+
+  // Get time components
+  const hours = String(now.getHours()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+
+  // Combine into the desired format
+  return `${day}${month}${year}-${hours}${seconds}`;
+}
+
+const formattedTime = getCurrentFormattedTime();
+console.log(formattedTime);
+
 /**
  * Converts a PDF file into PNG images using Poppler.
  * @param {string} pdfPath - The file path to the input PDF.
@@ -11,11 +32,12 @@ const { analyzeImageWithBedrock } = require("../services/bedrockService");
 async function convertPdfToImages(pdfPath) {
     console.log("Starting PDF to image conversion...");
     const outputDir = path.dirname(pdfPath);
-
+    const filename = path.basename(pdfPath)
+    const formattedTime = getCurrentFormattedTime();
     const options = {
         format: "png",
         out_dir: outputDir,
-        out_prefix: "page",
+        out_prefix: "page-"+formattedTime+"-"+filename,
         page: null // Convert all pages
     };
 
@@ -24,7 +46,7 @@ async function convertPdfToImages(pdfPath) {
 
         const files = await fs.readdir(outputDir);
         const imageFiles = files
-            .filter(file => file.startsWith("page") && file.endsWith(".png"))
+            .filter(file => file.startsWith(options.out_prefix) && file.endsWith(".png"))
             .map(file => ({ path: path.join(outputDir, file) }));
 
         console.log("PDF converted to images successfully.");
