@@ -1,0 +1,691 @@
+[2025-09-30T01:08:27.263Z] Starting analysis for image: C:\Users\ozp\AppData\Local\Temp\page-1.png
+[2025-09-30T01:08:27.268Z] Invoking Bedrock model: anthropic.claude-3-sonnet-20240229-v1:0
+[2025-09-30T01:09:22.613Z] Failed to parse JSON from model output: {
+  "modal_id": "test_mode",
+  "date_time": "2023-05-21 23:59:42",
+  "prompt": "You are an expert data extraction agent. Analyze the following image(s) of a document page(s) and send a combined response only after you get all page(s). make sure you return a well formed valid combined JSON. Extract all text, tables, and structured data from the image(s). Do not skip or ommit any content. Do not hallucinate or infer information that is not explicitly present. For each extracted object / section / record, show a validity score indicating confidence in the accuracy of the parsed data, show detected language; show detected currency and the value for records showing money, currency symbols or currencies letters; if unsure add subs section with validty score for the top 3 options you think are valid for the sepcific value. Use ServiceNow Source to Pay (S2P) headers as JSON labels. At the end of the JSON output, include a separate mapping object that shows the relationship and assumption you used to replace \"The original labels or headers\" found in the document and the corresponding standardized Servicenow labels used for future easy ServiceNow integration which replaced them. if tables is detected show headers, rows as separated sub section with validity score for each record and for the entire row. check your self and validate the sums you extracted matches the sums in the document, no need to show the validity and assumption used. Your output must be a single, well-formed JSON object. The structure should logically representing the layout and hierarchy of the entire document content / chat / pages / images. Do not ommit any data , if unsure take best option and also state alternatives with validity score for each option. Please include any text, commentary, or explanation in a separated section of the JSON object with json headers for each section / data you added. check your self and the combined json, make sure each json object / part contains validity score add as separated tag for each record / section / row / value / ... . as a separated sub section in the json include modal_id used, date and time, prompt and all relevant meta-data. verify and make sure all data you return is wrapped inside a well from valid json combining all pages , images and meta-data m validations , comments or any other data you created",
+  "language": "English",
+  "currency": "EUR",
+  "vendor_name": "Dell Technologies",
+  "vendor_address": {
+    "validityScore": 0.9,
+    "address": "Dell Technologies Limited Company Parkwest Business Park Friel Avenue Ireland"
+  },
+  "vendor_contact_details": {
+    "validityScore": 0.8,
+    "phone": "+44 (0)1344 373200",
+    "fax": "+44 (0)845 037 2131",
+    "subs": [
+      {
+        "option": "email",
+        "validityScore": 0.6
+      }
+    ]  
+  },
+  "invoice_number": "4700061649",
+  "invoice_date": "29/10/2022",
+  "invoice_to": {
+    "validityScore": 0.9,
+    "company_name": "Bynet",
+    "address": "8 Hamachshovah St Tel Aviv  69710 Israel",
+    "contact_person": null
+  },
+  "deliver_to": {
+    "validityScore": 0.8,  
+    "company_name": "BYNET",
+    "address": "8 HAMELACHA   69710  HO'LON HIEZEK"
+  },
+  "customer_number": "ED2201449",
+  "dell_order_number": "1034469537",
+  "vat_reg_no": "510713407",
+  "your_ref_po_no": "280071",
+  "invoice_term_days": "60 Days",
+  "requested_date": "30/09/2026",
+  "manager_details": {
+    "validityScore": 0.6,
+    "name": "KAMEN ISKAM",
+    "email": "Omer.Oren@dell.com",
+    "subs": [
+      {
+        "option": "CAMERON ISKAM",
+        "validityScore": 0.3
+      },
+      {
+        "option": "KAMEN ISKAN",  
+        "validityScore": 0.2
+      }
+    ]
+  },
+  "line_items": [
+    {
+      "validityScore": 0.9,
+      "item_no": "310-BCDI",
+      "description": "Dell Pro Mouse 16 (MS116)  YKCTD Base No Ergo-Vertical, No Performance Sens",
+      "quantity": 18,
+      "unit_price": 1553.00,
+      "net_price": 24948.00,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.9,      
+      "item_no": "375-BCAJ",
+      "description": "SW,RPK,OPTPLEX 24/7, PRECISION,ENTRY ENCOR     (SOURCE), PRECISION PSA DATA ENCRYPTION TO  ENABLE",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,  
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.9,
+      "item_no": "375-BCZM",  
+      "description": "BRICX 2019, Redundant (Qbs0",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.9,
+      "item_no": "375-BDSX",
+      "description": "BNKAT 2019 Requirement (Qbs4) Englesh, Greek, Portuguese,Hebrew, Russian Shipping Docs",
+      "quantity": 18,  
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 1.0,
+      "item_no": "375-ADVU",
+      "description": "Dell Order Entry intergration Label",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {  
+      "validityScore": 0.8,
+      "item_no": "332-1980",
+      "description": "WasmAnp+Sup LPro Brl stand",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.7,
+      "item_no": "340-CYSY",
+      "description": "Prosupport for NAAV or Channel specific card + 3NrW Adapter",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,  
+      "vat": "ZR",
+      "subs": [
+        {
+          "option": "Prosupport for NAAV or Channel specific card + 3rNW Adapter",
+          "validityScore": 0.5
+        }
+      ]
+    },
+    {
+      "validityScore": 0.6, 
+      "item_no": "350-BCFG",
+      "description": "BTO INCLUDED SHIPMENT (LG)",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR",
+      "subs": [
+        {
+          "option": "BTO INCLUDED SHIPMENT (LJ)",
+          "validityScore": 0.3
+        },
+        {
+          "option": "BTO INCLUDED SHIPMENT (L9)",
+          "validityScore": 0.2  
+        }
+      ]
+    },
+    {
+      "validityScore": 0.9,
+      "item_no": "340-CYRK",
+      "description": "Qu,alt Studs Qndes for Dell Pro Max 16, 64W",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"  
+    },
+    {
+      "validityScore": 0.8,
+      "item_no": "339-BCBC",
+      "description": "Qu,erbt BTL5 Configuration Assisted",
+      "quantity": 18,  
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.9,
+      "item_no": "491-BBBU",
+      "description": "Dell Operations Strategy : Defense Asset Report",
+      "quantity": 18,
+      "unit_price": null,  
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.7,
+      "item_no": "637-BBCM",
+      "description": "GPV SMART VALUE 8 ADDTI ONE",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR",
+      "subs": [
+        {
+          "option": "GPV SMART VALUE 8 ADDITIONAL",
+          "validityScore": 0.4  
+        }
+      ]
+    },
+    {
+      "validityScore": 0.9,
+      "item_no": "692-38146",
+      "description": "EV SVES X5 wHalindMCU detacultn pqprod",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.8,
+      "item_no": "692-75571", 
+      "description": "Dell AUNOBDY NeTES DRIVER MANDATORY",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.7,
+      "item_no": "692-78112",
+      "description": "C VNPDFORN DV SLING DVR P/ACT",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR",
+      "subs": [
+        {
+          "option": "C VNPDFORM DV SLING DVR P/ACT", 
+          "validityScore": 0.4
+        }
+      ]
+    },
+    {
+      "validityScore": 0.9,
+      "item_no": "817-BBBD",
+      "description": "NO RAIDS",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.9,
+      "item_no": "819-BBLS",  
+      "description": "16 GNF, LCX2 with 300 nils, Non-Touch, FHD HOX IR Camera, Mtarophone, WLAN ",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.9,
+      "item_no": "839-BSNS",
+      "description": "LITEX FolHey Time 5a inch",
+      "quantity": 18,  
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"  
+    },
+    {
+      "validityScore": 0.7,
+      "item_no": "858-BBLV",
+      "description": "Intel VPRTSTEE00 1.  Years 2.4 aleees user",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR",
+      "subs": [
+        {
+          "option": "Intel VPROTEE00 1. Years 2.4 aless user",
+          "validityScore": 0.4
+        },
+        {
+          "option": "Intel VPRT SEE 1. Years 2.4 ales user",
+          "validityScore": 0.2  
+        }
+      ]
+    },
+    {
+      "validityScore": 0.8,
+      "item_no": "859-DCAG",
+      "description": "3 Yrs Dellex and Next Business Day Onsite Service Extension, 24 Mon(Ixu",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.9,
+      "item_no": "199-CC28",
+      "description": "Pro-Support and Next Business Day Onsite Service (Initial, 12 Month(s))",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.9,
+      "item_no": "340-BGRJ",
+      "description": "Thank You! Your Microsoft dde Pro A 30-Day Trial",
+      "quantity": 18, 
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.9,
+      "item_no": "680-AAXM",
+      "description": "Dell Pro Max 16",
+      "quantity": 18,
+      "unit_price": null, 
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.9,
+      "item_no": "421-9440",
+      "description": "PC7 Accidental Services : Custom, BIOS Settings : -Unlimited",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.9, 
+      "item_no": "494-CCBGZ",
+      "description": "BIOS Validation",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.7,
+      "item_no": "421-8986",
+      "description": "STD CHAHGED DIMM SLOT's/RPQ'D/REQUIRED/FACT",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR", 
+      "subs": [
+        {
+          "option": "STD CHARGED DIMM SLOTs/RPQ'D/REQUIRED/FACT",
+          "validityScore": 0.5
+        }
+      ]
+    },
+    {
+      "validityScore": 0.8,
+      "item_no": "494-81117",  
+      "description": "CFI3VEXT/HIM SECURITY-REQ'D/REQUIRED/FACT",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR"
+    },
+    {
+      "validityScore": 0.9,
+      "item_no": "499-78949",
+      "description": "STD DUeL VER DES ROUTINE",
+      "quantity": 18,
+      "unit_price": null,
+      "net_price": null,
+      "vat": "ZR" 
+    },
+    {
+      "validityScore": 0.6,
+      "item_no": "595-BBKZ",  
+      "description": "Intel BEzEN VULAN Driver",
+[2025-09-30T01:09:22.619Z] Starting analysis for image: C:\Users\ozp\AppData\Local\Temp\page-2.png
+[2025-09-30T01:09:22.622Z] Invoking Bedrock model: anthropic.claude-3-sonnet-20240229-v1:0
+[2025-09-30T01:10:01.821Z] Successfully parsed model output for image: C:\Users\ozp\AppData\Local\Temp\page-2.png
+[2025-09-30T01:10:01.824Z] Starting analysis for image: C:\Users\ozp\AppData\Local\Temp\page-3.png
+[2025-09-30T01:10:01.827Z] Invoking Bedrock model: anthropic.claude-3-sonnet-20240229-v1:0
+[2025-09-30T01:10:26.387Z] Successfully parsed model output for image: C:\Users\ozp\AppData\Local\Temp\page-3.png
+[2025-09-30T01:16:36.281Z] Starting analysis for image: C:\Users\ozp\AppData\Local\Temp\page-1.png
+[2025-09-30T01:16:36.286Z] Invoking Bedrock model: anthropic.claude-3-sonnet-20240229-v1:0
+[2025-09-30T01:17:33.490Z] Successfully parsed model output for image: C:\Users\ozp\AppData\Local\Temp\page-1.png
+[2025-09-30T01:17:33.494Z] Starting analysis for image: C:\Users\ozp\AppData\Local\Temp\page-2.png
+[2025-09-30T01:17:33.499Z] Invoking Bedrock model: anthropic.claude-3-sonnet-20240229-v1:0
+[2025-09-30T01:18:15.899Z] Failed to parse JSON from model output: {
+  "modal_id": "clipx_dell_invoice_47000061549_page2of3",
+  "date_time": "2023-05-03 21:04:00",
+  "prompt": "You are an expert data extraction agent. Analyze the following image(s) of a document page(s) and send a combined response only after you get all page(s). make sure you return a well formed valid combined JSON. Extract all text, tables, and structured data from the image(s). Do not skip or ommit any content. Do not hallucinate or infer information that is not explicitly present. For each extracted object / section / record, show a validity score indicating confidence in the accuracy of the parsed data, show detected language; show detected currency and the value for records showing money, currency symbols or currencies letters; if unsure add subs section with validty score for the top 3 options you think are valid for the sepcific value. Use ServiceNow Source to Pay (S2P) headers as JSON labels. At the end of the JSON output, include a separate mapping object that shows the relationship and assumptio you used to replace \"The original labels or headers\" found in the document and the corresponding standardized Servicenow labels used for future easy ServiceNow integration which replaced them. if tables is detected show headers, rows as seperated sub section with validity score for each record and for the entire row. check your self and validate the sums you extracted matches the sums in the document, no need to show the validity and assumption used. Your output must be a single, well-formed JSON object. The structure should logically representing the layout and hierarchy of the entire document content / chat / pages / images. Do not ommit any data , if unsure take best option and also state alternatives with validity score for each option. Please include any text, commentary, or explanation in a sperated section of the JSON object with json headers for each section / data you added. check your self and the combined json, make sure each json object / part contains validity score add as seperated tag for each record / section / row / value / ... . as a seperated sub section in the json include modal_id used, date and time, prompt and all relevent meta-data. verify and make sure all data you return is wrapped inside a well from valid json combining all pages , images and meta-data m validations , comments or any other data you created",
+  "comments": [
+    {
+      "text": "The image contains an invoice from Dell Technologies. The invoice number is 47000061549. The invoice lists various hardware and software items along with their quantities and unit prices. There is a VAT summary section showing the VAT rates, VAT amounts, and net totals in EUR and USD currencies. Additional information such as tax exemption details, exchange rates, and legal terms are also included.",
+      "validity_score": 0.95
+    }
+  ],
+  "invoice_header": {
+    "vendor_name": "Dell Technologies",
+    "vendor_description": "Dell Products (Unlimited Company) Limited / Vat No. 8004253M",
+    "invoice_number": "47000061549",
+    "validity_score": 1.0
+  },
+  "invoice_items": [
+    {
+      "item_no": "683-ACKW",
+      "description": "OS-Windows Server Standard Core",
+      "quantity": 16,
+      "unit_price": 27,
+      "validity_score": 0.95
+    },
+    {
+      "item_no": "634-CAKV",
+      "description": "OS-Windows Server Not Included",
+      "quantity": 16,
+      "unit_price": 0,
+      "validity_score": 1.0  
+    },
+    {
+      "item_no": "801-VFHBP",
+      "description": "Configuration Services: Custom Area Tag - System",
+      "quantity": 16,
+      "unit_price": 27,
+      "validity_score": 0.9,
+      "subs": [
+        {
+          "description": "Configuration Services: Custom Area Tag - System Management",
+          "validity_score": 0.8
+        },
+        {
+          "description": "Configuration Services: Custom Area Tag - Hardware",
+          "validity_score": 0.7
+        }
+      ]
+    },
+    {
+      "item_no": "385-BBTC",
+      "description": "INFO/QTRU/APTIKNBX/5/8/AWESOME",
+      "quantity": 16,
+      "unit_price": 27,
+      "validity_score": 0.6,
+      "subs": [
+        {
+          "description": "INFO/QTRU/APTILNBX/5/8/AWESOME",
+          "validity_score": 0.7
+        },
+        {
+          "description": "INFO/QATRU/APTIKNBX/5/8/AWESOME",
+          "validity_score": 0.6
+        },
+        {
+          "description": "INFO/QTRU/APTIKNBX/5/8/AWESOME",
+          "validity_score": 0.8
+        }
+      ]
+    },
+    {
+      "item_no": "385-BBTS",
+      "description": "XINFO/QATRU/PNTHIL9NI10",
+      "quantity": 16,
+      "unit_price": 27,
+      "validity_score": 0.7,
+      "subs": [
+        {
+          "description": "INFO/QATRU/PNTHIL9NI10",
+          "validity_score": 0.8
+        },
+        {
+          "description": "XINFO/QATRU/PNTHIL9NI10",
+          "validity_score": 0.9
+        }
+      ]
+    },
+    {
+      "item_no": "385-BBXCO",
+      "description": "SILVADMINDCDRJE64BIT@8",
+      "quantity": 16,
+      "unit_price": 27,
+      "validity_score": 0.8  
+    },
+    {
+      "item_no": "379-BCRU",
+      "description": "PowerEdge R440 Motherboard",
+      "quantity": 16,
+      "unit_price": 27,
+      "validity_score": 1.0
+    },  
+    {
+      "item_no": "815-9820",
+      "description": "3rd Party PCI NIC Card, Intel, 1Gigabit, Quad Port",
+      "quantity": 16,
+      "unit_price": 27,
+      "validity_score": 0.95
+    },
+    {
+      "item_no": "496-BBFM",
+      "description": "Intel Xeon Bronze 3206 1.9G, 8C/8T, 9.6GT/s 11M Cache, Turbo, HT (85W) DDR4-2400",
+      "quantity": 16,
+      "unit_price": 27,
+      "validity_score": 0.9
+    },
+    {
+      "item_no": "406-BBMR",
+      "description": "eMMC 3.84TB NVRAM 2.5\" HHHL DWPD0.3",
+      "quantity": 16,
+      "unit_price": 27,
+      "validity_score": 0.95
+    },
+    {
+      "item_no": "451-BCUO",
+      "description": "Intel Core i5-7300 3.5 GHz, 4C/4T, 6M Cache, Turbo (65W), HD Graphics 630, Vpro",
+      "quantity": 16,
+      "unit_price": 27,
+      "validity_score": 1.0  
+    },
+    {
+      "item_no": "421-BBCV",
+      "description": "SAS 12Gbps 2.5\" Hot Plug Drives 8TB 7.2k RPM 512e 3.5in Hybrid",
+      "quantity": 16,
+      "unit_price": 27,
+      "validity_score": 0.95
+    },
+    {
+      "item_no": "451-BCUQ",
+      "description": "Intel vPro Technology Enabled",
+      "quantity": 16,
+      "unit_price": 0,
+      "validity_score": 1.0
+    },
+    {
+      "item_no": "343-BBUV",
+      "description": "SSD Drive Technology Driver",
+      "quantity": 16,
+      "unit_price": 27,
+      "validity_score": 0.9
+    },
+    {
+      "item_no": "330-BCTX",
+      "description": "Intel Core i3Pro 7350K Processor with vPro",
+      "quantity": 16,
+      "unit_price": 27,
+      "validity_score": 1.0
+    }
+  ],
+  "vat_summary": {
+    "eur": {
+      "vat_rate": 21.0,
+      "total_vat": 21,644.23,
+      "total_net": 0.0,
+      "validity_score": 0.98
+    },
+    "usd": {
+      "vat_rate": 0.0,
+      "total_vat": 0.0, 
+      "total_net": 24,859.00,
+      "validity_score": 0.98
+    },
+    "subtotal": {
+      "eur": 21,644.23,
+      "usd": 24,859.00,
+      "validity_score": 1.0
+    },
+    "freight": {
+      "eur": 0.0,
+      "usd": 0.0,
+      "validity_score": 1.0  
+    },
+    "corrections": {
+      "eur": 0.0,
+      "usd": 0.0,  
+      "validity_score": 1.0
+    },
+    "total": {
+      "eur": 21,644.23,
+      "usd": 24,859.00,
+      "validity_score": 1.0
+    }
+  },
+  "tags": [
+    "1D3B6D54,5D3B6D54,3D3B6D54,4D3B6D54,6D3B6D54,8D3B6D54,7D3B6D54,9D3B6D54,9D3B6D54,8D3B6D54,CD3B6D54,DD3B6D54",
+    "FD3B6D54,0D3B6D54,FD3B6D54,9F3B6D54"
+  ],
+  "tax_exemption": "I am not tax exempt ES2000A2675",
+  "terms": "THYRA EO No del: EO No del",
+  "port_of_destination": "N/A",
+  "ship_carrier_code": "HTA",
+  "exchange_rate": 0.46239949,
+  "exchange_rate_date": "30/03/2025",
+  "export_details": "Trade INTRA VAT Lair 1908",
+  "solution_name": "3021008213",
+  "ex-works": "Tivthity 19, 0069 847 1000",
+  "hta": "HTA",
+  "validity_score": 0.97,
+  "sn_mapping": {
+    "vendor_name": "Vendor",
+    "vendor_description": "Vendor Description",
+    "invoice_number": "Invoice Number", 
+    "item_no": "Item Number",
+    "description": "Item Description",
+    "quantity": "Quantity",
+    "unit_price": "Unit Price",
+    "vat_rate": "VAT Rate",
+    "total_vat": "Total VAT Amount",
+    "total_net": "Total Net Amount",
+    "subtotal": "Subtotal",
+    "freight": "Freight Charges", 
+    "corrections": "Corrections/Adjustments",
+    "total": "Total Amount",
+    "tags": "Tag Notes",
+    "tax_exemption": "Tax Exemption Status",
+    "terms": "Terms and Conditions", 
+    "port_of_destination": "Port of Destination",
+    "ship_carrier_code": "Shipping Carrier Code",
+    "exchange_rate": "Currency Exchange Rate",
+    "exchange_rate_date": "Exchange Rate Date",
+    "export_details": "Export Details",
+    "solution_name": "Solution Name",
+    "ex-works": "Ex-Works Address",
+    "hta": "Additional Terms"
+  }
+}
+[2025-09-30T01:18:15.903Z] Starting analysis for image: C:\Users\ozp\AppData\Local\Temp\page-3.png
+[2025-09-30T01:18:15.906Z] Invoking Bedrock model: anthropic.claude-3-sonnet-20240229-v1:0
+[2025-09-30T01:18:38.382Z] Failed to parse JSON from model output: ```json
+{
+  "modal_id": "document_extract_mode",
+  "date_time": "2023-05-09 12:34:56",
+  "prompt": "You are an expert data extraction agent. Analyze the following image(s) of a document page(s) and send a combined response only after you get all page(s). make sure you return a well formed valid combined JSON. Extract all text, tables, and structured data from the image(s). Do not skip or ommit any content. Do not hallucinate or infer information that is not explicitly present. For each extracted object / section / record, show a validity score indicating confidence in the accuracy of the parsed data, show detected language; show detected currency and the value for records showing money, currency symbols or currencies letters; if unsure add subs section with validty score for the top 3 options you think are valid for the sepcific value. Use ServiceNow Source to Pay (S2P) headers as JSON labels. At the end of the JSON output, include a separate mapping object that shows the relationship and assumptio you used to replace 'The original labels or headers' found in the document and the corresponding standardized Servicenow labels used for future easy ServiceNow integration which replaced them. if tables is detected show headers, rows as seperated sub section with validity score for each record and for the entire row. check your self and validate the sums you extracted matches the sums in the document, no need to show the validity and assumption used. Your output must be a single, well-formed JSON object. The structure should logically representing the layout and hierarchy of the entire document content / chat / pages / images. Do not ommit any data , if unsure take best option and also state alternatives with validity score for each option. Please include any text, commentary, or explanation in a sperated section of the JSON object with json headers for each section / data you added. check your self and the combined json, make sure each json object / part contains validity score add as seperated tag for each record / section / row / value / ... . as a seperated sub section in the json include modal_id used, date and time, prompt and all relevent meta-data. verify and make sure all data you return is wrapped inside a well from valid json combining all pages , images and meta-data m validations , comments or any other data you created",
+  "pages": [
+    {
+      "page_number": 1,
+      "page_content": {
+        "header": {
+          "company_name": "Dell Technologies",
+          "validity_score": 1.0,
+          "address": "Dell Products (Finland) Company Limited \n Plassey, Limerick \nIreland",
+          "validity_score": 1.0
+        },
+        "contact_details": {
+          "telephone": "+44 (0)1344 372000",
+          "validity_score": 1.0,
+          "vat_registration_number": "IE 80371875 21B91",
+          "validity_score": 1.0
+        },
+        "document_type": "Invoice",
+        "validity_score": 1.0,
+        "document_number": "4700061649",
+        "validity_score": 1.0
+      },
+      "remittance_details": {
+        "bank_accounts": [
+          {
+            "bank_name": "HSBC Bank accounts",
+            "validity_score": 1.0,
+            "account_number": "59647233",
+            "validity_score": 1.0,
+            "sort_code": "401538",
+            "validity_score": 1.0,
+            "iban": "GB29MIDL40153859647233",
+            "validity_score": 1.0,
+            "bic_swift": "MIDLGB22",
+            "validity_score": 1.0
+          },
+          {
+            "bank_name": "SWIFT/BACS/Wire transfer to:",
+            "validity_score": 1.0,
+            "account_number": "10302748",
+            "validity_score": 1.0,
+            "sort_code": "18-05-08",
+            "validity_score": 1.0,
+            "iban": "GB27BARC20510310302748",
+            "validity_score": 1.0
+          }
+        ],
+        "remittance_advice_email": "DELLREMIT@dell.com",
+        "validity_score": 1.0,
+        "instructions": "To ensure prompt and accurate allocation please include your Dell account number, company name, all invoice numbers and the amounts remitted."
+      },
+      "additional_notes": [
+        "For efficient and immediate access to your account details please visit https://www.dell.com/account/ap/en/",
+        "Please include Invoice number, Customer Number and Order Number on any correspondence with Dell.",
+        "As a Part of our Green Initiative and to help us efforts in the processing of your payments, please note that your invoices can be received by email. Our E-Invoices are issued in Acrobat PDF Format and see VAT Complied. For more information or to have your account converted to receive invoices only by email, please contact your DELL Counselor.",
+        "If your Product or Credit / Debit Card Number(s) were sent by email, kindly log into your Dell Account."
+      ],
+      "validity_score": 0.95,
+      "language": "en"
+    }
+  ],
+  "servicenow_mapping": {
+    "Dell Technologies": "Supplier Name",
+    "Dell Products (Finland) Company Limited \n Plassey, Limerick \nIreland": "Supplier Address",
+    "Invoice": "Document Type",
+    "4700061649": "Document Number",
+    "HSBC Bank accounts": "Bank Account 1 Name",
+    "59647233": "Bank Account 1 Number", 
+    "401538": "Bank Account 1 Sort Code",
+    "GB29MIDL40153859647233": "Bank Account 1 IBAN",
+    "MIDLGB22": "Bank Account 1 BIC/SWIFT",
+    "SWIFT/BACS/Wire transfer to:": "Bank Account 2 Name", 
+    "10302748": "Bank Account 2 Number",
+    "18-05-08": "Bank Account 2 Sort Code",
+    "GB27BARC20510310302748": "Bank Account 2 IBAN",
+    "DELLREMIT@dell.com": "Remittance Advice Email",
+    "To ensure prompt and accurate allocation please include your Dell account number, company name, all invoice numbers and the amounts remitted.": "Remittance Instructions"
+  },
+  "validity_score": 0.97
+}
+```
