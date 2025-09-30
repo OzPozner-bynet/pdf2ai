@@ -4,7 +4,7 @@ const path = require("path");
 
 // Generate log file name with current date
 const currentDate = new Date().toISOString().split("T")[0]; // e.g., "2025-09-30"
-const logFilePath = path.join(__dirname, `bedrock-${currentDate}.log`);
+const logFilePath = path.join(__dirname,'../../logs/' ,`bedrock-${currentDate}.log`);
 
 // Helper function to log to both console and file
 async function log(message) {
@@ -73,7 +73,7 @@ async function analyzeImageWithBedrock(imagePath) {
             accept: "application/json",
             body: JSON.stringify({
                 anthropic_version: "bedrock-2023-05-31",
-                max_tokens: 4096,
+                max_tokens: 16000,
                 messages: [{
                     role: "user",
                     content: [
