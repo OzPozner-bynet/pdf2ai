@@ -1,0 +1,338 @@
+require('dotenv').config();
+const http = require('http');
+const fs = require('fs');
+const https = require('https');
+const express = require('express');
+const AWS = require('aws-sdk');
+
+const app = express();
+// Accept both JSON and text (keeps existing behavior but enables JSON body in /sendfile)
+app.use(express.json({ limit: '25mb' }));
+app.use(express.text({ type: ['text/*', 'application/text'], limit: '25mb' }));
+
+const HTTPS_PORT = 8443;
+const HTTP_PORT = 8080;
+const MODEL_ID = 'anthropic.claude-3-5-sonnet-20240620-v1:0';
+const REGIONS = [process.env.AWS_REGION , 'eu-central-1'];
+
+// FIX: remove bracket arrays, fix typo
+const SNOW_API_USER = process.env.SNOW_API_USER || 'admin';
+const SNOW_API_PASSWORD = process.env.SNOW_API_PASSWORD || 'secret';
+const SNOW_API_URL = process.env.SNOW_API_URL || 'https://genaigenaipov.service-now.com/api/now/attachment/';
+
+// Validate AWS credentials
+if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+  console.error('Missing AWS credentials in .env');
+  process.exit(1);
+}
+
+// Log every incoming request (avoid dumping large bodies)
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Headers:', JSON.stringify(req.headers, null, 2));
+  const bodyPreview =
+    typeof req.body === 'string'
+      ? (req.body.length > 500 ? req.body.slice(0, 500) + '…[truncated]' : req.body)
+      : JSON.stringify(req.body).slice(0, 500);
+  console.log('Body (preview):', bodyPreview);
+  next();
+});
+
+// Health check
+app.get('/health', (req, res) => {
+  console.log('Health check triggered');
+  res.status(200).send('Server is healthy');
+});
+
+// ---- Helpers ----
+function basicAuthHeader(user, pass) {
+  const token = Buffer.from(`${user}:${pass}`).toString('base64');
+  return `Basic ${token}`;
+}
+
+function parseContentDispositionFilename(headerValue) {
+  if (!headerValue) return null;
+  // content-disposition: attachment; filename="my-file.pdf"
+  const match = /filename\*?=(?:UTF-8'')?"?([^\";]+)"?/i.exec(headerValue);
+  if (match && match[1]) {
+    try {
+      return decodeURIComponent(match[1]);
+    } catch {
+      return match[1];
+    }
+  }
+  return null;
+}
+
+function downloadServiceNowAttachmentBase64(sys_id) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(`${SNOW_API_URL}${encodeURIComponent(sys_id)}/file`);
+    console.log(`getting file from  ${url}`);
+    const options = {
+      method: 'GET',
+      headers: {
+        Authorization: basicAuthHeader(SNOW_API_USER, SNOW_API_PASSWORD),
+        Accept: '*/*',
+      },
+
+    };
+
+    const req = https.request(url, options, (resp) => {
+      const { statusCode, headers } = resp;
+
+      if (statusCode && statusCode >= 400) {
+        const chunks = [];
+        resp.on('data', (d) => chunks.push(d));
+        resp.on('end', () => {
+          const body = Buffer.concat(chunks).toString('utf8');
+          reject(
+            new Error(
+              `ServiceNow download failed: ${statusCode}. Headers=${JSON.stringify(
+                headers
+              )}. Body=${body.slice(0, 500)}`
+            )
+          );
+        });
+        return;
+      }
+
+      const chunks = [];
+      resp.on('data', (d) => chunks.push(d));
+      resp.on('end', () => {
+        const buffer = Buffer.concat(chunks);
+        const base64 = buffer.toString('base64');
+        const contentType = headers['content-type'] || 'application/octet-stream';
+        const contentDisposition = headers['content-disposition'];
+        const fileName = parseContentDispositionFilename(contentDisposition) || 'attachment';
+        resolve({
+          base64,
+          contentType,
+          fileName,
+          size: buffer.length,
+        });
+         console.log(`curl -k -X GET "${url}" -H "Authorization: ${basicAuthHeader(SNOW_API_USER, SNOW_API_PASSWORD)}"  -H "Accept: */*"`);
+         console.log({
+       //   base64: base64,           // Base64-encoded string of the file
+          contentType: contentType, // MIME type, e.g., 'image/png'
+          fileName: fileName,       // Name of the file, e.g., 'photo.png'
+          size: buffer.length       // Size of the buffer in bytes
+        });
+      });
+    });
+
+
+
+    req.on('error', (err) => reject(err));
+    req.end();
+    
+  });
+}
+
+async function sendToBedrockWithDocument({ instruction, base64, mediaType, fileName }) {
+  // Build Anthropic Bedrock messages payload with a text instruction and a document block
+  const payload = {
+    anthropic_version: 'bedrock-2023-05-31',
+    max_tokens: 2048,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'input_text',
+            text:
+              instruction ||
+              `You are given a file. Extract structured records and return JSON with:
+- records: array of objects representing each record found, including "validation_score" (0-1)
+- detected_languages: array of languages observed (ISO codes if possible)
+- classification: high-level classification of the file content (e.g., "invoice", "resume", "form", "contacts", etc.)
+Return only valid JSON.`,
+          },
+          {
+            type: 'document',
+            media_type: mediaType || 'application/octet-stream',
+            data: base64,
+          },
+        ],
+      },
+    ],
+  };
+  //  console.log(`payload is :\n ${JSON.stringify(payload, null, 2) }`);
+  for (const region of REGIONS) {
+    const bedrock = new AWS.BedrockRuntime({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region,
+    });
+
+    try {
+      console.log(`trying region ${region} with Model: ${MODEL_ID}`);
+      const response = await bedrock
+        .invokeModel({
+          modelId: MODEL_ID,
+          contentType: 'application/json',
+          accept: 'application/json',
+          body: JSON.stringify(payload),
+        })
+        .promise();
+
+      const parsed = JSON.parse(response.body);
+      console.log(`code: ${response.code}`);
+      console.log(`parsed: ${parsed}`);
+      // Typical Anthropic response on Bedrock: { content: [{type: 'text', text: '...'}], ... }
+      return { status: 200, body: parsed };
+    } catch (err) {
+        console.error(`Error invoking Bedrock in ${region}:`, {
+          message: err.message,
+          code: err.code,
+          statusCode: err.statusCode,
+          region,
+          stack: err.stack,
+          requestId: err.requestId,
+          retryable: err.retryable,
+        });
+    }
+
+  }
+  return { status: 404, body: { error: 'Sendfile All regions failed or unreachable' } };
+}
+
+// ---- Existing prompt endpoint (unchanged) ----
+app.post('/prompt', async (req, res) => {
+  const prompt = typeof req.body === 'string' ? req.body : req.body?.prompt;
+  console.log('Received prompt:', prompt);
+
+  if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
+    console.warn('Invalid or empty prompt');
+    return res.status(400).json({ error: 'Missing or invalid prompt' });
+  }
+
+  try {
+    const result = await (async function sendToBedrock(prompt) {
+      const payload = {
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1024,
+        anthropic_version: 'bedrock-2023-05-31',
+      };
+
+      for (const region of REGIONS) {
+        const bedrock = new AWS.BedrockRuntime({
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+          region,
+        });
+
+        try {
+          const response = await bedrock
+            .invokeModel({
+              modelId: MODEL_ID,
+              contentType: 'application/json',
+              accept: 'application/json',
+              body: JSON.stringify(payload),
+            })
+            .promise();
+
+          const parsed = JSON.parse(response.body);
+          if (parsed.error || parsed.Error || parsed.status === 'error') {
+            return { status: 404, body: parsed };
+          }
+          return { status: 200, body: parsed };
+        } catch (err) {
+          console.error(`Error invoking Bedrock in ${region}:`, err.message);
+        }
+      }
+      return { status: 404, body: { error: 'Prompt All regions failed or unreachable' } };
+    })(prompt);
+
+    console.log(`Responding with status ${result.status}`);
+    res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error('Unexpected error in /prompt:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ---- New /sendfile endpoint ----
+app.post('/sendfile', async (req, res) => {
+  // Accept either JSON { sys_id, prompt } or plain text (sys_id), with optional query params
+  let sys_id, userPrompt;
+
+  if (typeof req.body === 'string') {
+    try {
+      const maybeJson = JSON.parse(req.body);
+      sys_id = maybeJson.sys_id || req.query.sys_id;
+      userPrompt = maybeJson.prompt || req.query.prompt;
+    } catch {
+      sys_id = req.body || req.query.sys_id;
+      userPrompt = req.query.prompt;
+    }
+  } else {
+    sys_id = req.body?.sys_id || req.query.sys_id;
+    userPrompt = req.body?.prompt || req.query.prompt;
+  }
+
+  if (!sys_id || typeof sys_id !== 'string' || sys_id.trim() === '') {
+    return res.status(400).json({ error: 'Missing or invalid sys_id' });
+  }
+
+  try {
+    // 1) Download the attachment as base64 from ServiceNow
+    const { base64, contentType, fileName, size } = await downloadServiceNowAttachmentBase64(sys_id);
+    console.log(
+      `Downloaded attachment: name=${fileName}, type=${contentType}, size=${size} bytes (base64 length=${base64.length})`
+    );
+
+    // 2) Build a strong instruction if userPrompt not provided
+    const defaultInstruction = `You are given a file. Extract structured information and return ONLY valid JSON with this structure:
+{
+  "records": [
+    {
+      "fields": { /* key-value pairs extracted per record */ },
+      "validation_score": 0.0
+    }
+  ],
+  "detected_languages": ["en", "he"],
+  "classification": "invoice | resume | contract | form | contacts | table | other"
+}
+- "validation_score" is a float between 0 and 1 indicating confidence the record is valid/well-formed.
+- If no records are found, return an empty array.
+- Do not include explanations—return only JSON.`;
+
+    const instruction = userPrompt && userPrompt.trim().length > 0 ? userPrompt : defaultInstruction;
+
+    // 3) Send file + instruction to Bedrock
+    const result = await sendToBedrockWithDocument({
+      instruction,
+      base64,
+      mediaType: contentType,
+      fileName,
+    });
+
+    // 4) Return Bedrock response (likely contains content[0].text with JSON)
+    res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error('Error in /sendfile:', err.message);
+    res.status(500).json({ error: 'Internal server error', detail: err.message });
+  }
+});
+
+// Start HTTPS server
+https
+  .createServer(
+    {
+      key: fs.readFileSync('server.key'),
+      cert: fs.readFileSync('server.cert'),
+      secureProtocol: 'TLSv1_2_method',
+    },
+    app
+  )
+  .listen(HTTPS_PORT, '0.0.0.0', () => {
+    console.log(`HTTPS server running : all_ips on port ${HTTPS_PORT}`);
+  })
+  .on('error', (err) => {
+    console.error('HTTPS server failed to start:', err.message);
+  });
+
+// HTTP server
+http.createServer(app).listen(HTTP_PORT, '0.0.0.0', () => {
+  console.log(`HTTP server listening on port ${HTTP_PORT}`);
+});

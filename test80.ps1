@@ -1,5 +1,5 @@
 # Start server in background
-npx pm2 start server.js --name bedrock-server
+#npx pm2 start server.js --name bedrock-server
 
 # Wait for server to initialize
 Start-Sleep -Seconds 3
@@ -15,13 +15,11 @@ $tests = @(
 foreach ($prompt in $tests) {
     Write-Host "`nSending prompt: $prompt"
     try {
-        $response  = Invoke-WebRequest -Uri "https://51.17.168.6:8443/prompt" `
+        $response  = Invoke-WebRequest -Uri "http://ec2-51-17-168-6.il-central-1.compute.amazonaws.com:8080/prompt" `
             -Method POST `
             -Body $prompt `
             -ContentType "text/plain" `
             -SkipCertificateCheck
-
-            
 
         Write-Host "24 Status Code: $($response.StatusCode)"
         Write-Host "25 Response Body:`n$($response.Content)"
@@ -33,5 +31,5 @@ foreach ($prompt in $tests) {
 }
 
 # Stop server after tests
-npx pm2 stop bedrock-server
-npx pm2 delete bedrock-server
+#npx pm2 stop bedrock-server
+#npx pm2 delete bedrock-server
