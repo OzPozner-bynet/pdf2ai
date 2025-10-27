@@ -1,8 +1,5 @@
 # Start server in background
-del "$env:USERPROFILE\.pm2\logs\server-out.log" 
-cd C:\tf\ocr\servicenow-midserver-terraform\server-js
-
-npx pm2 start server.js --name bedrock-server
+#npx pm2 start server.js --name bedrock-server
 
 # Wait for server to initialize
 Start-Sleep -Seconds 3
@@ -18,7 +15,7 @@ $tests = @(
 foreach ($prompt in $tests) {
     Write-Host "`nSending prompt: $prompt"
     try {
-        $response  = Invoke-WebRequest -Uri "https://localhost:8443/prompt" `
+        $response  = Invoke-WebRequest -Uri "http://ec2-51-17-168-6.il-central-1.compute.amazonaws.com:8080/prompt" `
             -Method POST `
             -Body $prompt `
             -ContentType "text/plain" `
@@ -33,8 +30,6 @@ foreach ($prompt in $tests) {
     }
 }
 
-curl -k -X POST "https://localhost:8443/sendfile" -H "Content-Type: application/json" -d '{"sys_id":"7d6d28369363a6109d4937e86cba10c3","prompt":"Extract customer records and return only JSON with records, validation_score per record, detected_languages, classification."}'
 # Stop server after tests
-npx pm2 stop bedrock-server
-Get-Content "$env:USERPROFILE\.pm2\logs\server-out.log" # -Wait
-npx pm2 delete bedrock-server
+#npx pm2 stop bedrock-server
+#npx pm2 delete bedrock-server
