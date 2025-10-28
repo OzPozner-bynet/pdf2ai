@@ -41,7 +41,7 @@ Thumbs.db
 *.bak
 *.tmp
 *.old
-
+/public/*
 
 # But keep package.json
 !package.json
