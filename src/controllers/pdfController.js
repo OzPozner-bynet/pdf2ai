@@ -79,7 +79,26 @@ async function processPdfAndExtractData(pdfPath) {
     }
 }
 
+async function processPdfAndExtractData2(pdfPath, prompt, mapping) {
+    try {
+        const images = await convertPdfToImages(pdfPath);
+        const results = [];
+
+        for (const image of images) {
+            const result = await analyzeImageWithBedrock2(image.path, prompt, mapping);
+            results.push(result);
+        }
+
+        return results;
+    } catch (error) {
+        console.error("Error during PDF processing:", error);
+        throw error;
+    }
+}
+
+
 module.exports = {
     convertPdfToImages,
-    processPdfAndExtractData
+    processPdfAndExtractData,
+    processPdfAndExtractData2
 };
