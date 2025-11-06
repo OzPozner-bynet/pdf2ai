@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs").promises;
 const pdfPoppler = require("pdf-poppler");
-const { analyzeImageWithBedrock } = require("C:\\bedrock-aws\\services\\bedrockService");
+const { analyzeImageWithBedrock, analyzeImageWithBedrock2, analyzeImageWithBedrockDynamic } = require("C:\\bedrock-aws\\services\\bedrockService");
 
 
 
@@ -79,13 +79,18 @@ async function processPdfAndExtractData(pdfPath) {
     }
 }
 
-async function processPdfAndExtractData2(pdfPath, prompt, mapping) {
+async function processPdfAndExtractData2(pdfPath, prompt, mapping, ai_model = null) {
     try {
         const images = await convertPdfToImages(pdfPath);
         const results = [];
 
         for (const image of images) {
-            const result = await analyzeImageWithBedrock2(image.path, prompt, mapping);
+              let result = "";
+              if (!ai_model){
+                result = await analyzeImageWithBedrock2(image.path, prompt, mapping);
+              } else {
+                result = await analyzeImageWithBedrockDynamic(image.path, prompt, mapping, ai_model)
+              }
             results.push(result);
         }
 

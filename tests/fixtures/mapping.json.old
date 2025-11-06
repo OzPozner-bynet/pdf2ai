@@ -1,0 +1,58 @@
+[
+  {
+    "source_field": "מספר חשבונית",
+    "source_translation": "Invoice Number",
+    "servicenow_field": "invoice_number",
+    "example_value": "12345",
+    "lang_detect": { "language": "he", "score": 0.99 }
+  },
+  {
+    "source_field": "תאריך חשבונית",
+    "source_translation": "Invoice Date",
+    "servicenow_field": "invoice_date",
+    "example_value": "08/09/2025",
+    "lang_detect": { "language": "he", "score": 0.98 }
+  },
+  {
+    "source_field": "שם ספק",
+    "source_translation": "Vendor Name",
+    "servicenow_field": "vendor.name",
+    "example_value": "חברת דוגמה בע\"מ",
+    "lang_detect": { "language": "he", "score": 0.99 }
+  },
+  {
+    "source_field": "מספר ספק",
+    "source_translation": "Vendor Number",
+    "servicenow_field": "vendor_number",
+    "example_value": "VND-5678",
+    "lang_detect": { "language": "he", "score": 0.97 }
+  },
+  {
+    "source_field": "סכום כולל",
+    "source_translation": "Total Amount",
+    "servicenow_field": "total_amount",
+    "example_value": "₪ 12,345.67",
+    "lang_detect": { "language": "he", "score": 0.96 }
+  },
+  {
+    "source_field": "מטבע",
+    "source_translation": "Currency",
+    "servicenow_field": "currency",
+    "example_value": "ש\"ח",
+    "lang_detect": { "language": "he", "score": 0.95 }
+  },
+  {
+    "source_field": "תיאור",
+    "source_translation": "Description",
+    "servicenow_field": "description",
+    "example_value": "תשלום עבור שירותי ייעוץ",
+    "lang_detect": { "language": "he", "score": 0.99 }
+  },
+  {
+    "source_field": "תאריך פירעון",
+    "source_translation": "Due Date",
+    "servicenow_field": "due_date",
+    "example_value": "30/09/2025",
+    "lang_detect": { "language": "he", "score": 0.98 }
+  }
+]

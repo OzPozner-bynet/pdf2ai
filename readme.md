@@ -155,7 +155,7 @@ README.md: This documentation file.
 >>>>>>> 6ec2fa46af6c6cbadd8ee0d5759e8f3464f292b0
 Using curl:
 bash
-curl -X POST http://localhost:8080/api/sendtollm  -F "pdf=@/path/to/document.pdf"  -F "mapping=@/path/to/mapping.xml"  -F "prompt=@/path/to/prompt.txt"
+curl -X POST http://localhost:8080/api/sendtollm  -F "pdf=@/path/to/document.pdf"  -F "mapping=@/path/to/mapping.json"  -F "prompt=@/path/to/prompt.txt"
 Using JavaScript (e.g. in frontend):
 js
 const formData = new FormData();
@@ -169,3 +169,9 @@ fetch('/api/sendtollm', {
 })
   .then(res => res.json())
   .then(data => console.log(data));
+
+
+fixed tests
+echo "PDF placeholder" > tests/fixtures/sample.pdf
+echo '{ "Invoice Number": "SN.InvoiceID" }' > tests/fixtures/mapping.json
+echo "Extract invoice details from this document." > tests/fixtures/prompt.txt
