@@ -29,8 +29,8 @@ describe('PDF Extraction API', () => {
     if (fs.existsSync(testPdfPath)) {
       fs.unlinkSync(testPdfPath);
     }
-    httpServer.close();
-    httpsServer.close();
+   // httpServer.close();
+   // httpsServer.close();
   });
 
   beforeEach(() => {
