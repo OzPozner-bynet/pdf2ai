@@ -7,7 +7,6 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const { processPdfAndExtractData, processPdfAndExtractData2 } = require('./src/controllers/pdfController');
 
-
 const express = require('express');
 const fs = require('fs');
 const https = require('https');
@@ -18,14 +17,28 @@ const net = require('net');
 const app = express();
 const HTTP_PORT = 8080;
 const HTTPS_PORT = 8443;
-let httpServer = null;  
+
+let httpServer = null;
 let httpsServer = null;
+
 const credentials = {
   key: fs.readFileSync(path.join(__dirname, 'certs', 'server.key')),
   cert: fs.readFileSync(path.join(__dirname, 'certs', 'server.crt'))
 };
 
-// Utility to check if a port is already in use
+// ==============================
+// GLOBAL PARSERS (IMPORTANT)
+// ==============================
+app.use(express.json({ limit: "200mb" }));
+app.use(express.urlencoded({ extended: true, limit: "200mb" }));
+app.use(bodyParser.raw({ type: 'application/pdf', limit: '200mb' }));
+
+const upload = multer({ dest: path.join(__dirname, 'temp') });
+
+// ==============================
+// PORT UTILITIES
+// ==============================
+
 function isPortInUse(port) {
   return new Promise((resolve) => {
     const tester = net.createServer()
@@ -35,39 +48,42 @@ function isPortInUse(port) {
   });
 }
 
-// Utility to wait for a port to become free
 function waitForPortRelease(port, retries = 5, delay = 1000) {
   return new Promise((resolve, reject) => {
     let attempts = 0;
     const check = async () => {
       const inUse = await isPortInUse(port);
       if (!inUse) return resolve();
-      if (++attempts >= retries) return reject(new Error(`Port ${port} still in use after ${retries} attempts.`));
+      if (++attempts >= retries) return reject(new Error('Port ' + port + ' still in use after ' + retries + ' attempts.'));
       setTimeout(check, delay);
     };
     check();
   });
 }
 
-// Start servers with port conflict handling
+// ==============================
+// START SERVERS
+// ==============================
+
 async function startServers() {
   try {
     if (await isPortInUse(HTTP_PORT)) {
-      console.log(`HTTP port ${HTTP_PORT} is in use. Waiting for release...`);
+      console.log('HTTP port ' + HTTP_PORT + ' is in use. Waiting for release...');
       await waitForPortRelease(HTTP_PORT);
     }
-    ttpServer = http.createServer(app).listen(HTTP_PORT, () => {
-      console.log(`Server is running on http://0.0.0.0:${HTTP_PORT}`);
+
+    httpServer = http.createServer(app).listen(HTTP_PORT, '0.0.0.0', function() {
+      console.log('Server is running on http://0.0.0.0:' + HTTP_PORT);
     });
 
     if (await isPortInUse(HTTPS_PORT)) {
-      console.log(`HTTPS port ${HTTPS_PORT} is in use. Waiting for release...`);
+      console.log('HTTPS port ' + HTTPS_PORT + ' is in use. Waiting for release...');
       await waitForPortRelease(HTTPS_PORT);
     }
-    httpsServer = https.createServer(credentials, app).listen(HTTPS_PORT, () => {
-      console.log(`Server is running on https://0.0.0.0:${HTTPS_PORT}`);
-    });
 
+    httpsServer = https.createServer(credentials, app).listen(HTTPS_PORT, '0.0.0.0', function() {
+      console.log('Server is running on https://0.0.0.0:' + HTTPS_PORT);
+    });
 
   } catch (err) {
     console.error('Failed to start servers:', err.message);
@@ -76,255 +92,130 @@ async function startServers() {
 }
 
 startServers();
-module.exports = { httpServer, httpsServer, app };
+module.exports = { httpServer: httpServer, httpsServer: httpsServer, app: app };
+
+
+function escapeJsonString(input) {
+    // Ensure input is treated as a string
+    const str = String(input);
+
+    // Escape backslashes, quotes, and control characters
+    return str
+        .replace(/\\/g, "\\\\")   // escape backslashes
+        .replace(/"/g, '\\"')     // escape double quotes
+        .replace(/\n/g, "\\n")    // escape newlines
+        .replace(/\r/g, "\\r")    // escape carriage returns
+        .replace(/\t/g, "\\t");   // escape tabs
+}
 
 
 
-const upload = multer({ dest: path.join(__dirname, 'temp') });
 
-app.use(bodyParser.raw({ type: 'application/pdf', limit: '100mb' }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// ==============================
+// STATIC + BASIC ROUTES
+// ==============================
 
-// Serve /robots.txt directly from ./public
-app.get('/robots.txt', (req, res) => {
-  const myfile = path.join(__dirname, 'public', 'robots.txt');
-  console.log(`trying to send file:${myfile}`);
-  res.sendFile(myfile);
+app.get('/robots.txt', function(req, res) {
+  var robotsFilePath = path.join(__dirname, 'public', 'robots.txt');
+  res.sendFile(robotsFilePath);
 });
 
-// Serve static files from ./public under /files route
 app.use('/files', express.static(path.join(__dirname, 'public'), {
   index: false,
-  setHeaders: (res, filePath) => {
-    console.log(`trying to serve file:${filePath}`);
-    res.setHeader('Content-Disposition', `attachment; filename="${path.basename(filePath)}"`);
+  setHeaders: function(res, filePath) {
+    res.setHeader('Content-Disposition', 'attachment; filename="' + path.basename(filePath) + '"');
   }
 }));
 
-app.get('/api/recieve', (req, res) => {
-  const { sys_id } = req.query;
-  if (!sys_id) {
+app.get('/api/recieve', function(req, res) {
+  var sysId = req.query.sys_id;
+  if (!sysId) {
     return res.status(400).json({ error: 'Missing sys_id parameter in query.' });
   }
-  res.status(200).json({ sys_id });
+  res.status(200).json({ sys_id: sysId });
 });
 
-// ✅ Original PDF extraction route
+// ==============================
+// WORKING ROUTE: /api/extract-pdf-data (UNCHANGED)
+// ==============================
 
-app.post('/api/extract-pdf-data', async (req, res) => {
+app.post('/api/extract-pdf-data', async function(req, res) {
   try {
-    const encoding = req.headers['x-content-transfer-encoding'] || 'binary';
-    const filename = req.headers['x-filename'] || 'uploaded.pdf';
-    if (!(encoding === 'base64')) {
-      if (!req.files?.pdf?.[0]) {
-        return res.status(400).json({ error: 'No PDF file uploaded' });
-      }
+    var encoding = req.headers['x-content-transfer-encoding'] || 'binary';
+    var filename = req.headers['x-filename'] || 'uploaded.pdf';
 
-      const file = req.files?.pdf?.[0];
-      if (!file || file.mimetype !== 'application/pdf') {
-        return res.status(400).json({ error: 'Invalid file type' });
-      }
-    }
+    var buffer;
 
-    let buffer;
     if (encoding === 'base64') {
-      if (typeof req.body === 'object') {
-        buffer = Buffer.from(req.body.toString(), 'base64');
-      } else {
-        buffer = Buffer.from(req.body, 'base64');
-      }
+      var bodyStr = Buffer.isBuffer(req.body) ? req.body.toString() : req.body;
+      buffer = Buffer.from(bodyStr, 'base64');
     } else {
-      if (Buffer.isBuffer(req.body)) {
-        buffer = req.body;
-      } else if (typeof req.body === 'string') {
-        buffer = Buffer.from(req.body, 'binary');
-      } else if (typeof req.body === 'object') {
-        buffer = Buffer.from(JSON.stringify(req.body), 'binary');
-      } else {
-        throw new Error('Invalid PDF body format.');
-      }
+      buffer = Buffer.isBuffer(req.body)
+        ? req.body
+        : Buffer.from(req.body, 'binary');
     }
 
-    const tempPath = path.join(__dirname, 'temp', `${Date.now()}-${filename}`);
+    var tempPath = path.join(__dirname, 'temp', String(Date.now()) + '-' + filename);
     fs.writeFileSync(tempPath, buffer);
 
-    const data = await processPdfAndExtractData(tempPath);
-    res.status(200).json({ message: 'Data extracted successfully.', data });
-
-    fs.unlink(tempPath, () => { });
+    var data = await processPdfAndExtractData(tempPath);
+    res.status(200).json({ message: 'Data extracted successfully.', data: data });
+    console.log(`returned 200 data: \n ${data} `);
+    fs.unlink(tempPath, function() {});
   } catch (error) {
-    console.error('Error during PDF processing:', error);
     res.status(500).json({ error: 'PDF processing failed', details: error.message });
+    console.log(`{ "error: 'PDF processing failed', details:" ${error.message }`);
   }
 });
 
+// ==============================
+// FIXED /api/sendtollm ROUTE
+// JSON BODY WITH BASE64 PDF + PROMPT + MAPPING
+// ==============================
 
-app.post('/api/sendtollm', upload.fields([
-  { name: 'pdf', maxCount: 1 },
-  { name: 'mapping', maxCount: 1 },
-  { name: 'prompt', maxCount: 1 }
-]), async (req, res) => {
+app.post('/api/sendtollm', async function(req, res) {
+  var pdfPath = null;
+
   try {
-    let pdfPath;
-    const mappingPath = req.files?.mapping?.[0]?.path || path.join(__dirname, 'mapping.json');
-    const promptPath = req.files?.prompt?.[0]?.path || path.join(__dirname, 'prompt.txt');
+    console.log('🔹 /api/sendtollm called');
+    
+    var body = req.body || {};
+    var fileName = body.file_name || 'uploaded.pdf';
+    var pdfBase64 = body.pdf_base64;
+    var promptText = body.prompt || '';
+    var mappingText = escapeJsonString(body.mapping) || '';
+    var modal = body.modal || null;
 
-    // Handle PDF from multipart upload
-    if (req.files?.pdf?.[0]) {
-      pdfPath = req.files.pdf[0].path;
-    } else {
-      // Handle raw or base64-encoded PDF in body
-      const encoding = req.headers['x-content-transfer-encoding'] || 'binary';
-      const filename = req.headers['x-filename'] || 'uploaded.pdf';
-
-      let buffer;
-      if (encoding === 'base64') {
-        const base64String = Buffer.isBuffer(req.body)
-          ? req.body.toString('utf-8')
-          : typeof req.body === 'string'
-            ? req.body
-            : JSON.stringify(req.body);
-
-        buffer = Buffer.from(base64String, 'base64');
-      } else {
-        if (Buffer.isBuffer(req.body)) {
-          buffer = req.body;
-        } else if (typeof req.body === 'string') {
-          buffer = Buffer.from(req.body, 'binary');
-        } else {
-          return res.status(400).json({ error: 'Invalid PDF body format.' });
-        }
-      }
-
-      pdfPath = path.join(__dirname, 'temp', `${Date.now()}-${filename}`);
-      fs.writeFileSync(pdfPath, buffer);
+ 
+    if (!pdfBase64) {
+      return res.status(400).json({ error: 'Missing pdf_base64 in request body.' });
     }
 
-    // Read prompt text if available
-    let promptText = null;
-    if (fs.existsSync(promptPath)) {
-      try {
-        promptText = fs.readFileSync(promptPath, 'utf-8');
-      } catch (err) {
-        return res.status(500).json({ error: 'Failed to read prompt.txt', details: err.message });
-      }
-    }
+    var pdfBuffer = Buffer.from(pdfBase64, 'base64');
+    pdfPath = path.join(__dirname, 'temp', String(Date.now()) + '-' + fileName);
+    fs.writeFileSync(pdfPath, pdfBuffer);
+    console.log(`THIS IS LINE 180 PROMPT TEXT :\n ${promptText} ` );
+    console.log(`THIS IS LINE 181 Mapping JSON :\n ${mappingText} ` );
+    var data = await processPdfAndExtractData2(pdfPath, promptText, mappingText, modal);
 
-    // Read mapping content if available
-    let mappingText = null;
-    if (fs.existsSync(mappingPath)) {
-      try {
-        mappingText = fs.readFileSync(mappingPath, 'utf-8');
-      } catch (err) {
-        return res.status(500).json({ error: 'Failed to read mapping.json', details: err.message });
-      }
-    }
+    fs.unlink(pdfPath, function() {});
 
-    // Get modelId from query or header
-    const modelId = req.query.modelId || req.headers['x-model-id'] || null;
-
-    // Process PDF with dynamic model
-    const { analyzeImageWithBedrock2, analyzeImageWithBedrockDynamic } = require('./services/bedrockService');
-    if (!modelId) {
-      const data = await analyzeImageWithBedrock2(pdfPath, promptText, mappingText);
-    } else {
-      const data = await analyzeImageWithBedrockDynamic(pdfPath, promptText, mappingText, modelId);
-    }
-    res.status(200).json({
-      message: 'Data extracted successfully.',
-      data,
-      promptUsed: !!promptText,
-      mappingUsed: fs.existsSync(mappingPath),
-      modelUsed: modelId || process.env.BEDROCK_MODEL_ID
+    return res.status(200).json({
+      message: 'Data extracted successfully (JSON mode).',
+      data: data,
+      promptUsed: promptText,
+      mappingUsed: mappingText,
+      modalUsed: modal,
     });
-
-    if (!req.files?.pdf?.[0]) fs.unlink(pdfPath, () => { });
-  } catch (error) {
-    console.error('Error in /api/sendtollm:', error);
-    res.status(500).json({ error: 'Processing failed', details: error.message });
+    console.log(`returned 200 data: \n ${data} `);
+  } catch (err) {
+    console.error('195❌ Error in /api/sendtollm:', err);
+    res.status(500).json({ error: 'Processing failed', details: err.message });
   }
 });
 
+// ==============================
 
-
-app.post('/api/sendtollm_delme', upload.fields([
-  { name: 'pdf', maxCount: 1 },
-  { name: 'mapping', maxCount: 1 },
-  { name: 'prompt', maxCount: 1 }
-]), async (req, res) => {
-  try {
-    let pdfPath;
-    const mappingPath = req.files?.mapping?.[0]?.path || path.join(__dirname, 'mapping.json');
-    const promptPath = req.files?.prompt?.[0]?.path || path.join(__dirname, 'prompt.txt');
-
-    // Handle PDF from multipart upload
-    if (req.files?.pdf?.[0]) {
-      pdfPath = req.files.pdf[0].path;
-    } else {
-      // Handle raw or base64-encoded PDF in body
-      const encoding = req.headers['x-content-transfer-encoding'] || 'binary';
-      const filename = req.headers['x-filename'] || 'uploaded.pdf';
-
-      let buffer;
-      if (encoding === 'base64') {
-        const base64String = Buffer.isBuffer(req.body)
-          ? req.body.toString('utf-8')
-          : typeof req.body === 'string'
-            ? req.body
-            : JSON.stringify(req.body); // fallback for object
-
-        buffer = Buffer.from(base64String, 'base64');
-      } else {
-        if (Buffer.isBuffer(req.body)) {
-          buffer = req.body;
-        } else if (typeof req.body === 'string') {
-          buffer = Buffer.from(req.body, 'binary');
-        } else {
-          return res.status(400).json({ error: 'Invalid PDF body format.' });
-        }
-      }
-
-
-      pdfPath = path.join(__dirname, 'temp', `${Date.now()}-${filename}`);
-      fs.writeFileSync(pdfPath, buffer);
-    }
-
-    // Read prompt text if available
-    let promptText = null;
-    if (fs.existsSync(promptPath)) {
-      try {
-        promptText = fs.readFileSync(promptPath, 'utf-8');
-      } catch (err) {
-        return res.status(500).json({ error: 'Failed to read prompt.txt', details: err.message });
-      }
-    }
-    // Process PDF
-    const data = await processPdfAndExtractData2(pdfPath, mappingPath, promptText);
-
-    res.status(200).json({
-      message: 'Data extracted successfully.',
-      data,
-      promptUsed: !!promptText,
-      mappingUsed: fs.existsSync(mappingPath)
-    });
-
-
-    // Cleanup if PDF was not uploaded via multipart
-    //    if (!req.files?.pdf?.[0]) fs.unlink(pdfPath, () => {});
-
-
-    // Cleanup
-    if (req.files?.pdf?.[0] === undefined) fs.unlink(pdfPath, () => { });
-  } catch (error) {
-    console.error('Error in /api/sendtollm:', error);
-    res.status(500).json({ error: 'Processing failed', details: error.message });
-  }
-});
-
-
-
-app.get('/', (req, res) => {
+app.get('/', function(req, res) {
   res.send('PDF Data Extraction Service is running.');
 });
-

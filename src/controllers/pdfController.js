@@ -6,19 +6,19 @@ const { analyzeImageWithBedrock, analyzeImageWithBedrock2, analyzeImageWithBedro
 
 
 function getCurrentFormattedTime() {
-  const now = new Date();
+    const now = new Date();
 
-  // Get date components
-  const day = String(now.getDate()).padStart(2, '0');
-  const month = String(now.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
-  const year = String(now.getFullYear()).slice(-2); // Get last two digits of the year
+    // Get date components
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+    const year = String(now.getFullYear()).slice(-2); // Get last two digits of the year
 
-  // Get time components
-  const hours = String(now.getHours()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
+    // Get time components
+    const hours = String(now.getHours()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
 
-  // Combine into the desired format
-  return `${day}${month}${year}-${hours}${seconds}`;
+    // Combine into the desired format
+    return `${day}${month}${year}-${hours}${seconds}`;
 }
 
 const formattedTime = getCurrentFormattedTime();
@@ -37,7 +37,7 @@ async function convertPdfToImages(pdfPath) {
     const options = {
         format: "png",
         out_dir: outputDir,
-        out_prefix: "page-"+formattedTime+"-"+filename,
+        out_prefix: "page-" + formattedTime + "-" + filename,
         page: null // Convert all pages
     };
 
@@ -83,20 +83,27 @@ async function processPdfAndExtractData2(pdfPath, prompt, mapping, ai_model = nu
     try {
         const images = await convertPdfToImages(pdfPath);
         const results = [];
-
+         console.log(`found ${images.length} images`);
         for (const image of images) {
-              let result = "";
-              if (!ai_model){
-                result = await analyzeImageWithBedrock2(image.path, prompt, mapping);
-              } else {
-                result = await analyzeImageWithBedrockDynamic(image.path, prompt, mapping, ai_model)
-              }
+            let result = "";
+            if (!prompt && !mapping) {
+                const result = await analyzeImageWithBedrock(image.path);
+                results.push(result);
+            } else {
+                if (!ai_model) {
+                    console.log(`sending using bedrock2 ${image.path}`);
+                    result = await analyzeImageWithBedrock2(image.path, prompt, mapping);
+                } else {
+                    console.log(`sending usin bedrockDynamic ${image.path} with ${ai_model}`);
+                    result = await analyzeImageWithBedrockDynamic(image.path, prompt, mapping, ai_model)
+                }
+            }
             results.push(result);
         }
 
         return results;
     } catch (error) {
-        console.error("Error during PDF processing:", error);
+        console.error("191 Error during PDF processing:", error);
         throw error;
     }
 }

@@ -175,3 +175,10 @@ fixed tests
 echo "PDF placeholder" > tests/fixtures/sample.pdf
 echo '{ "Invoice Number": "SN.InvoiceID" }' > tests/fixtures/mapping.json
 echo "Extract invoice details from this document." > tests/fixtures/prompt.txt
+
+
+winget install --id OpenJS.NodeJS.LTS -e
+winget install --id Git.Git -e
+winget install --id Google.CloudSDK -e
+winget install --id GraphicsMagick.GraphicsMagick -e
+winget install --id ArtifexSoftware.Ghostscript -e

@@ -76,3 +76,23 @@ Verify-Poppler
 Write-Host ""
 Write-Host "Poppler setup complete. You are ready to use pdf-poppler in your Node.js project."
 npm install aws-sdk
+
+
+winget install --id OpenJS.NodeJS.LTS -e
+winget install --id Git.Git -e
+winget install --id Google.CloudSDK -e
+winget install --id GraphicsMagick.GraphicsMagick -e
+winget install --id ArtifexSoftware.Ghostscript -e
+
+# Authenticate
+gcloud auth login
+
+# Initialize project
+gcloud init
+#gcloud config set project your-project-id
+
+# Enable Vertex AI API
+gcloud services enable aiplatform.googleapis.com
+
+# Set region
+gcloud config set ai/region me-west1

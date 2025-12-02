@@ -1,7 +1,7 @@
 {
-  "name": "pdf-to-bedrock-json-extractor",
+  "name": "pdf-to-bedrock-vertex-json-extractor",
   "version": "1.0.0",
-  "description": "A Node.js application to convert PDF pages to images and extract structured data using the AWS Bedrock API.",
+  "description": "Convert PDF pages to images and extract structured data using AWS Bedrock or Google Vertex AI (Gemini).",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -11,6 +11,8 @@
     "pdf",
     "aws",
     "bedrock",
+    "vertex-ai",
+    "gemini",
     "node.js",
     "express",
     "ai",
@@ -21,6 +23,7 @@
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.569.0",
     "aws-sdk": "^2.1692.0",
+    "@google-cloud/vertexai": "^1.7.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "multer": "^1.4.5-lts.1",
